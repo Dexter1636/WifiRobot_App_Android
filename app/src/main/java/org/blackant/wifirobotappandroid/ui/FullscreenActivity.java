@@ -1,4 +1,4 @@
-package org.blackant.wifirobotappandroid;
+package org.blackant.wifirobotappandroid.ui;
 
 import android.annotation.SuppressLint;
 import android.support.v7.app.ActionBar;
@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
+
+import org.blackant.wifirobotappandroid.R;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
