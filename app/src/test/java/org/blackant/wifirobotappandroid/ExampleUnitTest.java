@@ -1,4 +1,4 @@
-package org.blackant.wifirobot_app_android;
+package org.blackant.wifirobotappandroid;
 
 import org.junit.Test;
 

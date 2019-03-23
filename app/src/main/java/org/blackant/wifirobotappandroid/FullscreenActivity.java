@@ -1,4 +1,4 @@
-package org.blackant.wifirobot_app_android;
+package org.blackant.wifirobotappandroid;
 
 import android.annotation.SuppressLint;
 import android.support.v7.app.ActionBar;

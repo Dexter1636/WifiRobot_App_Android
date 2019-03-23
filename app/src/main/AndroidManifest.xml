@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.blackant.wifirobot_app_android">
+    package="org.blackant.wifirobotappandroid">
 
     <application
         android:allowBackup="true"
