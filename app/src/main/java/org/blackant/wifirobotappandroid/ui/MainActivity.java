@@ -1,5 +1,6 @@
 package org.blackant.wifirobotappandroid.ui;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +17,8 @@ public class MainActivity extends AppCompatActivity {
     private Button btnSettings;
 
     private final View.OnClickListener jumpToSettingsListener = v -> {
-        // TODO: 19-3-21 jump to SettingsActivity
+        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
     };
 
     @Override

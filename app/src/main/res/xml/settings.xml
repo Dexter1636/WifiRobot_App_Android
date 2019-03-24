@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="服务器设置">
+        <EditTextPreference
+            android:defaultValue="192.168.43.150:2001"
+            android:dialogTitle="控制IP：端口"
+            android:key="pref_key_router_url"
+            android:title="控制IP:端口" />
+        <EditTextPreference
+            android:defaultValue="rtmp://live.hkstv.hk.lxdns.com/live/hks"
+            android:title="视频地址"
+            android:key="pref_key_camera_url"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="调试"
+        android:key="pref_key_test_settings">
+        <CheckBoxPreference android:title="是否开启调试模式"
+            android:key="pref_key_test_enabled"/>
+        <EditTextPreference android:title="视频地址(调试模式)"
+            android:key="pref_key_camera_url_test"/>
+        <EditTextPreference
+            android:defaultValue="192.168.2.1:2001"
+            android:key="pref_key_router_url_test"
+            android:title="控制IP:端口(调试模式)" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="电机设置"
+        android:key="pref_key_motor_settings">
+        <EditTextPreference
+            android:title="左电机速度"
+            android:defaultValue="50"
+            android:key="pref_key_left_motor_speed"/>
+        <EditTextPreference
+            android:title="右电机速度"
+            android:defaultValue="50"
+            android:key="pref_key_right_motor_speed" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="大灯设置"
+        android:key="pref_key_len_settings">
+        <EditTextPreference
+            android:defaultValue="FF040100FF"
+            android:dialogTitle="大灯开启指令"
+            android:key="pref_key_len_on"
+            android:title="开启大灯指令" />
+        <EditTextPreference
+            android:defaultValue="FF040000FF"
+            android:title="关闭大灯指令"
+            android:key="pref_key_len_off"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="离线地图"
+        android:key="pref_key_map_settings">
+        <Preference android:title="离线地图管理"
+            android:key="Map"
+            android:summary=""/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

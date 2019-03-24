@@ -7,12 +7,24 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/dummy_button"
+        android:id="@+id/button"
         style="?metaButtonBarButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         app:layout_constraintTop_toBottomOf="parent"
         android:text="@string/dummy_button" />
+
+    <Button
+        android:id="@+id/dummy_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="234dp"
+        android:layout_marginTop="367dp"
+        android:layout_marginEnd="89dp"
+        android:text="Button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
