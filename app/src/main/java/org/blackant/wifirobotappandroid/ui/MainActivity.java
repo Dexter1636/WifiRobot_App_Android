@@ -38,10 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private IMediaPlayer.OnVideoSizeChangedListener mOnVideoSizeChangeListener;
     private IMediaPlayer.OnSeekCompleteListener mOnSeekCompletedListener;
 
-    private final View.OnClickListener jumpToSettingsListener = v -> {
-        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
-    };
+    private final View.OnClickListener jumpToSettingsListener = this::jumpToSettings;
 
 
     @Override
@@ -99,4 +96,8 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    private void jumpToSettings(View v) {
+        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(intent);
+    }
 }
