@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WifiRobot_App_Android</string>
+    <string name="app_name">WifiRobot</string>
 
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>

@@ -2,17 +2,23 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/root"
+    android:id="@+id/root_cl"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/dummy_button"
-        style="?metaButtonBarButtonStyle"
+    <com.ksyun.media.player.KSYTextureView
+        android:id="@+id/ksy_tv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        app:layout_constraintTop_toBottomOf="parent"
-        android:text="@string/dummy_button" />
+        android:layout_height="match_parent">
+    </com.ksyun.media.player.KSYTextureView>
+
+    <Button
+        android:id="@+id/settings_button"
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:text="@string/dummy_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
