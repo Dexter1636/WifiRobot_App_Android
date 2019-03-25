@@ -6,5 +6,6 @@
     - KSYUN Live Streaming player SDK
 2. SettingsActivity (basically done)
 3. some buttons for robot control (before 2019-3-29)
-4. GPS signal receiver
-5. the map
+4. rocker (before 2019-3-29)
+5. GPS signal receiver
+6. the map
