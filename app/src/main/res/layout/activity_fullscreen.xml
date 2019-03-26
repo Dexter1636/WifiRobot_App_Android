@@ -12,6 +12,11 @@
         android:layout_height="match_parent">
     </com.ksyun.media.player.KSYTextureView>
 
+    <include
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    layout="@layout/menu_bar" />
+
     <Button
         android:id="@+id/settings_button"
         android:layout_width="180dp"
