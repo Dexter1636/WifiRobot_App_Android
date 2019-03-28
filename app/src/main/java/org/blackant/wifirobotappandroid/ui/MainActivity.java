@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.ksyun.media.player.IMediaPlayer;
 import com.ksyun.media.player.KSYMediaPlayer;
@@ -22,8 +22,8 @@ public class MainActivity extends AppCompatActivity {
     // TODO: 19-3-24 let the user to set the url
     private final String mVideoUrl = "rtmp://live.hkstv.hk.lxdns.com/live/hks1";
 
-    KSYTextureView mVideoView;
-    private Button btnSettings;
+    private KSYTextureView mVideoView;
+    private ImageButton btnSettings;
 
     // 播放器的对象
     private KSYMediaPlayer ksyMediaPlayer;
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_fullscreen);
+        setContentView(R.layout.activity_main);
 
         // hide the StatusBar and the NavigationBar
         WindowUtils.setNavigationBarStatusBarHide(MainActivity.this);
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         mVideoView.shouldAutoPlay(true);
         mVideoView.prepareAsync();
 
-        btnSettings = findViewById(R.id.settings_button);
+        btnSettings = findViewById(R.id.ButtonCus);
         btnSettings.setOnClickListener(jumpToSettingsListener);
 
         //设置监听器

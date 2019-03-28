@@ -9,7 +9,7 @@
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
-        android:layout_height="27dp"
+        android:layout_height="26dp"
         android:background="#70000000"
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="0dp"
@@ -18,7 +18,7 @@
     <ImageView
         android:id="@+id/logo"
         android:layout_width="30dp"
-        android:layout_height="27dp"
+        android:layout_height="26dp"
         android:layout_weight="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -27,7 +27,7 @@
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="360dp"
-        android:layout_height="27dp"
+        android:layout_height="26dp"
         android:layout_marginStart="6dp"
         android:orientation="horizontal"
         app:layout_constraintStart_toEndOf="@+id/logo"
@@ -37,50 +37,56 @@
         <ImageButton
             android:id="@+id/ButtonCus"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="20dp"
             android:layout_weight="1"
+            android:layout_marginTop="3dp"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_settings_grey_600_24dp" />
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_settings_grey_50_24dp" />
 
         <ImageButton
             android:id="@+id/btnScreenRecord"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="20dp"
             android:layout_weight="1"
-            android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_camera_alt_grey_600_24dp" />
+            android:layout_marginTop="3dp"
+            android:background="@drawable/aaa" />
 
         <ImageButton
             android:id="@+id/btnScreenShot"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="20dp"
             android:layout_weight="1"
+            android:layout_marginTop="3dp"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_crop_grey_600_24dp" />
+            app:srcCompat="@drawable/ic_crop_grey_50_24dp" />
 
         <ImageButton
             android:id="@+id/btnAudio"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="20dp"
             android:layout_weight="1"
+            android:layout_marginTop="3dp"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_mic_grey_600_24dp" />
+            app:srcCompat="@drawable/ic_mic_grey_50_24dp" />
 
         <ImageButton
             android:id="@+id/reset"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="20dp"
             android:layout_weight="1"
+            android:layout_marginTop="3dp"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_replay_grey_600_24dp" />
+            app:srcCompat="@drawable/ic_replay_grey_50_24dp" />
 
         <ImageButton
             android:id="@+id/buttonLight"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="20dp"
             android:layout_weight="1"
+            android:layout_marginTop="3dp"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_flash_on_grey_600_24dp" />
+            app:srcCompat="@drawable/ic_flash_on_grey_50_24dp" />
 
         <View
             android:id="@+id/depart"
@@ -92,18 +98,20 @@
         <ImageButton
             android:id="@+id/viewSignal"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="20dp"
             android:layout_weight="1"
+            android:layout_marginTop="3dp"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_signal_cellular_3_bar_grey_600_24dp" />
+            app:srcCompat="@drawable/ic_signal_cellular_3_bar_grey_50_24dp" />
 
         <ImageButton
             android:id="@+id/viewElectricity"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="20dp"
             android:layout_weight="1"
+            android:layout_marginTop="3dp"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_battery_60_grey_600_24dp" />
+            app:srcCompat="@drawable/ic_battery_60_grey_50_24dp" />
 
         <TextView
             android:id="@+id/viewStatus"
@@ -121,10 +129,11 @@
         <ImageButton
             android:id="@+id/viewInfo"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="20dp"
             android:layout_weight="1"
+            android:layout_marginTop="3dp"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_volume_up_grey_600_24dp" />
+            app:srcCompat="@drawable/ic_volume_up_grey_50_24dp" />
     </LinearLayout>
 
     <TextView

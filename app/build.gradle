@@ -39,4 +39,7 @@ dependencies {
     implementation 'com.ksyun.media:libksyplayer-java:2.1.2'
     implementation 'com.ksyun.media:libksyplayer-armv7a:2.1.2'
     implementation 'com.ksyun.media:libksyplayer-arm64:2.1.2'
+
+    // remove it when packing the final apk
+    implementation 'com.ksyun.media:libksyplayer-x86_64:2.1.2'
 }

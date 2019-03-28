@@ -1,14 +1,13 @@
 package org.blackant.wifirobotappandroid.ui;
 
-import android.preference.Preference;
+import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Toast;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 
 import org.blackant.wifirobotappandroid.R;
+
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -17,17 +16,31 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         setTitle("机器人设置");
-        getFragmentManager().beginTransaction().replace(R.id.settings_content, new PrefsFragment()).commit();
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        getFragmentManager().beginTransaction().replace(R.id.settings_content, new PrefsFragment()).commit();
+    }
 
-     public static class PrefsFragment extends PreferenceFragment {
+    public static class PrefsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.settings);
         }
-
-
-
     }
+
+    @Override
+
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        if(item.getItemId() == android.R.id.home)
+        {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }
