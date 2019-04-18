@@ -17,4 +17,10 @@
     android:layout_height="wrap_content"
     layout="@layout/menu_bar" />
 
+    <org.blackant.wifirobotappandroid.views.RockerView
+        android:layout_width="230dp"
+        android:layout_height="230dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </android.support.constraint.ConstraintLayout>

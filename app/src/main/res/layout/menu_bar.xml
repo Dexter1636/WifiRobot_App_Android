@@ -41,7 +41,6 @@
             android:layout_weight="1"
             android:layout_marginTop="3dp"
             android:background="@android:color/transparent"
-            android:scaleType="centerInside"
             app:srcCompat="@drawable/ic_settings_grey_50_24dp" />
 
         <ImageButton
@@ -50,7 +49,8 @@
             android:layout_height="20dp"
             android:layout_weight="1"
             android:layout_marginTop="3dp"
-            android:background="@drawable/aaa" />
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/ic_camera_alt_grey_50_24dp" />
 
         <ImageButton
             android:id="@+id/btnScreenShot"
@@ -80,7 +80,7 @@
             app:srcCompat="@drawable/ic_replay_grey_50_24dp" />
 
         <ImageButton
-            android:id="@+id/buttonLight"
+            android:id="@+id/btnLight"
             android:layout_width="wrap_content"
             android:layout_height="20dp"
             android:layout_weight="1"

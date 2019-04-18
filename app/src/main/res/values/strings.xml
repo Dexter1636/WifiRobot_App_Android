@@ -3,4 +3,32 @@
 
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="pref_key_router_url" translatable="false">pref_key_router_url</string>
+    <string name="pref_key_router_url_default" translatable="false">192.168.43.150:2001</string>
+    <string name="pref_key_camera_url" translatable="false">pref_key_camera_url</string>
+    <string name="pref_key_camera_url_default" translatable="false">rtmp://live.hkstv.hk.lxdns.com/live/hks</string>
+
+    <string name="pref_key_test_enabled" translatable="false">pref_key_test_enabled</string>
+    <string name="pref_key_camera_url_test" translatable="false">pref_key_camera_url_test</string>
+    <string name="pref_key_camera_url_test_default" translatable="false"></string>
+    <string name="pref_key_router_url_test" translatable="false">pref_key_router_url_test</string>
+    <string name="pref_key_router_url_test_default" translatable="false">192.168.2.1:2001</string>
+
+    <string name="pref_key_left_motor_speed" translatable="false">pref_key_left_motor_speed</string>
+    <string name="pref_key_left_motor_speed_default" translatable="false">50</string>
+    <string name="pref_key_right_motor_speed" translatable="false">pref_key_right_motor_speed</string>
+    <string name="pref_key_right_motor_speed_default" translatable="false">50</string>
+
+    <string name="pref_key_len_on" translatable="false">pref_key_len_on</string>
+    <string name="pref_key_len_on_default" translatable="false">FF040100FF</string>
+    <string name="pref_key_len_off" translatable="false">pref_key_len_off</string>
+    <string name="pref_key_len_off_default" translatable="false">FF040000FF</string>
+
+
+
+    <bool name="pref_key_test_enabled_default">false</bool>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

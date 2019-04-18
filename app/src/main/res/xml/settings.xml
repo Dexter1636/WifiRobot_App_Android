@@ -2,25 +2,27 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="服务器设置">
         <EditTextPreference
-            android:defaultValue="192.168.43.150:2001"
+            android:defaultValue="@string/pref_key_router_url_default"
             android:dialogTitle="控制IP：端口"
-            android:key="pref_key_router_url"
+            android:key="@string/pref_key_router_url"
             android:title="控制IP:端口" />
         <EditTextPreference
-            android:defaultValue="rtmp://live.hkstv.hk.lxdns.com/live/hks"
-            android:title="视频地址"
-            android:key="pref_key_camera_url"/>
+            android:defaultValue="@string/pref_key_camera_url_default"
+            android:key="@string/pref_key_camera_url"
+            android:title="视频地址" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="调试"
         android:key="pref_key_test_settings">
         <CheckBoxPreference android:title="是否开启调试模式"
-            android:key="pref_key_test_enabled"/>
+            android:defaultValue="@bool/pref_key_test_enabled_default"
+            android:key="@string/pref_key_test_enabled" />
         <EditTextPreference android:title="视频地址(调试模式)"
-            android:key="pref_key_camera_url_test"/>
+            android:defaultValue="@string/pref_key_camera_url_test_default"
+            android:key="@string/pref_key_camera_url_test"/>
         <EditTextPreference
-            android:defaultValue="192.168.2.1:2001"
-            android:key="pref_key_router_url_test"
+            android:defaultValue="@string/pref_key_router_url_test_default"
+            android:key="@string/pref_key_router_url_test"
             android:title="控制IP:端口(调试模式)" />
     </PreferenceCategory>
 
@@ -28,25 +30,25 @@
         android:key="pref_key_motor_settings">
         <EditTextPreference
             android:title="左电机速度"
-            android:defaultValue="50"
-            android:key="pref_key_left_motor_speed"/>
+            android:defaultValue="@string/pref_key_left_motor_speed_default"
+            android:key="@string/pref_key_left_motor_speed"/>
         <EditTextPreference
             android:title="右电机速度"
-            android:defaultValue="50"
-            android:key="pref_key_right_motor_speed" />
+            android:defaultValue="@string/pref_key_right_motor_speed_default"
+            android:key="@string/pref_key_right_motor_speed" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="大灯设置"
         android:key="pref_key_len_settings">
         <EditTextPreference
-            android:defaultValue="FF040100FF"
+            android:defaultValue="@string/pref_key_len_on_default"
             android:dialogTitle="大灯开启指令"
-            android:key="pref_key_len_on"
+            android:key="@string/pref_key_len_on"
             android:title="开启大灯指令" />
         <EditTextPreference
-            android:defaultValue="FF040000FF"
+            android:defaultValue="@string/pref_key_len_off_default"
             android:title="关闭大灯指令"
-            android:key="pref_key_len_off"/>
+            android:key="@string/pref_key_len_off"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="离线地图"

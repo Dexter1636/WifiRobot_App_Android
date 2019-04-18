@@ -1,9 +1,12 @@
 package org.blackant.wifirobotappandroid.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -18,13 +21,19 @@ import java.io.IOException;
 
 // just test
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     // TODO: 19-3-24 let the user to set the url
-    private final String mVideoUrl = "rtmp://live.hkstv.hk.lxdns.com/live/hks1";
+    private String mVideoUrl = "rtmp://live.hkstv.hk.lxdns.com/live/hks1";
+    private String mRouterUrl;
+
 
     private KSYTextureView mVideoView;
     private ImageButton btnSettings;
+    private ImageButton btnAudio;
+    private ImageButton btnLight;
+    private boolean AudioChange = true;
+    private boolean LightChange = true;
 
     // 播放器的对象
     private KSYMediaPlayer ksyMediaPlayer;
@@ -40,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
     private IMediaPlayer.OnSeekCompleteListener mOnSeekCompletedListener;
 
     private final View.OnClickListener jumpToSettingsListener = this::jumpToSettings;
+    private final View.OnClickListener changeAudioImgListener = this::changeAudioImg;
+    private final View.OnClickListener changeLightImgListener = this::changeLightImg;
 
 
     @Override
@@ -51,12 +62,22 @@ public class MainActivity extends AppCompatActivity {
         // hide the StatusBar and the NavigationBar
         WindowUtils.setNavigationBarStatusBarHide(MainActivity.this);
 
+        // load data from sharedpreference
+        setupSharedPreferences();
+
+        // video view
         mVideoView = findViewById(R.id.ksy_tv);
         mVideoView.shouldAutoPlay(true);
         mVideoView.prepareAsync();
 
+        //some buttons
         btnSettings = findViewById(R.id.ButtonCus);
         btnSettings.setOnClickListener(jumpToSettingsListener);
+        btnAudio = findViewById(R.id.btnAudio);
+        btnAudio.setOnClickListener(changeAudioImgListener);
+        btnLight = findViewById(R.id.btnLight);
+        btnLight.setOnClickListener(changeLightImgListener);
+
 
         //设置监听器
         mVideoView.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
@@ -82,6 +103,26 @@ public class MainActivity extends AppCompatActivity {
         mVideoView.prepareAsync();
     }
 
+    private void setupSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mRouterUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
+        mVideoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));
+        sharedPreferences.getBoolean(getString(R.string.pref_key_test_enabled),getResources().getBoolean(R.bool.pref_key_test_enabled_default));
+        sharedPreferences.getString(getString(R.string.pref_key_camera_url_test), getString(R.string.pref_key_camera_url_test_default));
+        sharedPreferences.getString(getString(R.string.pref_key_router_url_test), getString(R.string.pref_key_router_url_test_default));
+        sharedPreferences.getString(getString(R.string.pref_key_left_motor_speed), getString(R.string.pref_key_left_motor_speed_default));
+        sharedPreferences.getString(getString(R.string.pref_key_right_motor_speed), getString(R.string.pref_key_right_motor_speed_default));
+        sharedPreferences.getString(getString(R.string.pref_key_len_on), getString(R.string.pref_key_len_on_default));
+        sharedPreferences.getString(getString(R.string.pref_key_len_off), getString(R.string.pref_key_len_off_default));
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+    }
+
 
     private void onPrepared(IMediaPlayer mp) {
         if (mVideoView != null) {
@@ -100,5 +141,48 @@ public class MainActivity extends AppCompatActivity {
     private void jumpToSettings(View v) {
         Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(intent);
+    }
+
+    private void changeAudioImg(View v) {
+        if (AudioChange) {
+            btnAudio.setImageResource(R.drawable.ic_mic_off_grey_50_24dp);
+            AudioChange = false;
+        } else {
+            btnAudio.setImageResource(R.drawable.ic_mic_grey_50_24dp);
+            AudioChange = true;
+        }
+    }
+
+    private void changeLightImg(View v) {
+        if (LightChange) {
+            btnLight.setImageResource(R.drawable.ic_flash_off_grey_50_24dp);
+            LightChange = false;
+        } else {
+            btnLight.setImageResource(R.drawable.ic_flash_on_grey_50_24dp);
+            LightChange = true;
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.pref_key_router_url))) {
+            mRouterUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
+        } else if (key.equals(getString(R.string.pref_key_camera_url))) {
+            mVideoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));
+        } else if (key.equals(getString(R.string.pref_key_test_enabled))) {
+            sharedPreferences.getBoolean(getString(R.string.pref_key_test_enabled),getResources().getBoolean(R.bool.pref_key_test_enabled_default));
+        } else if (key.equals(getString(R.string.pref_key_camera_url_test))) {
+            sharedPreferences.getString(getString(R.string.pref_key_camera_url_test), getString(R.string.pref_key_camera_url_test_default));
+        } else if (key.equals(getString(R.string.pref_key_router_url_test))) {
+            sharedPreferences.getString(getString(R.string.pref_key_router_url_test), getString(R.string.pref_key_router_url_test_default));
+        } else if (key.equals(getString(R.string.pref_key_left_motor_speed))) {
+            sharedPreferences.getString(getString(R.string.pref_key_left_motor_speed), getString(R.string.pref_key_left_motor_speed_default));
+        } else if (key.equals(getString(R.string.pref_key_right_motor_speed))) {
+            sharedPreferences.getString(getString(R.string.pref_key_right_motor_speed), getString(R.string.pref_key_right_motor_speed_default));
+        } else if (key.equals(getString(R.string.pref_key_len_on))) {
+            sharedPreferences.getString(getString(R.string.pref_key_len_on), getString(R.string.pref_key_len_on_default));
+        } else if (key.equals(getString(R.string.pref_key_len_off))) {
+            sharedPreferences.getString(getString(R.string.pref_key_len_off), getString(R.string.pref_key_len_off_default));
+        }
     }
 }

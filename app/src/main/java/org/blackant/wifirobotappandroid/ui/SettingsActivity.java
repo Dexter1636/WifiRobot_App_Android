@@ -23,13 +23,6 @@ public class SettingsActivity extends AppCompatActivity {
         getFragmentManager().beginTransaction().replace(R.id.settings_content, new PrefsFragment()).commit();
     }
 
-    public static class PrefsFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.settings);
-        }
-    }
 
     @Override
 
