@@ -6,7 +6,6 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -19,16 +18,16 @@ import org.blackant.wifirobotappandroid.utilities.WindowUtils;
 
 import java.io.IOException;
 
-// just test
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     // TODO: 19-3-24 let the user to set the url
-    private String mVideoUrl = "rtmp://live.hkstv.hk.lxdns.com/live/hks1";
+    // the url of video live stream
+    private String mVideoUrl;
+    // the url of robot control
     private String mRouterUrl;
 
 
-    private KSYTextureView mVideoView;
     private ImageButton btnSettings;
     private ImageButton btnAudio;
     private ImageButton btnLight;
@@ -36,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private boolean LightChange = true;
 
     // 播放器的对象
-    private KSYMediaPlayer ksyMediaPlayer;
+    private KSYTextureView mVideoView;
     private IMediaPlayer.OnBufferingUpdateListener mOnBufferingUpdateListener;
     // 播放器在准备完成，可以开播时会发出onPrepared回调
     private IMediaPlayer.OnPreparedListener mOnPreparedListener = this::onPrepared;
@@ -59,15 +58,15 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         setContentView(R.layout.activity_main);
 
-        // load data from sharedpreference
-        setupSharedPreferences();
+        // load parameters from SharedPreferences
+        loadParameters();
 
         // video view
         mVideoView = findViewById(R.id.ksy_tv);
         mVideoView.shouldAutoPlay(true);
         mVideoView.prepareAsync();
 
-        //some buttons
+        // buttons
         btnSettings = findViewById(R.id.ButtonCus);
         btnSettings.setOnClickListener(jumpToSettingsListener);
         btnAudio = findViewById(R.id.btnAudio);
@@ -76,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         btnLight.setOnClickListener(changeLightImgListener);
 
 
-        //设置监听器
+        // set listeners for the video
         mVideoView.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
         mVideoView.setOnCompletionListener(mOnCompletionListener);
         mVideoView.setOnPreparedListener(mOnPreparedListener);
@@ -84,16 +83,17 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         mVideoView.setOnVideoSizeChangedListener(mOnVideoSizeChangeListener);
         mVideoView.setOnErrorListener(mOnErrorListener);
         mVideoView.setOnSeekCompleteListener(mOnSeekCompletedListener);
-        //设置播放参数
+        // set parameters for the video player
         mVideoView.setBufferTimeMax(2.0f);
         mVideoView.setTimeout(5, 30);
         //......
-        //(其它参数设置)
+        // other parameters
         //......
-        //设置播放地址并准备
+        // set the url of the video and get prepared
         try {
             mVideoView.setDataSource(mVideoUrl);
         } catch (IOException e) {
+            Log.e("MediaPlayerError", "There's sth wrong loading the data source");
             // TODO: 19-3-24 tell the user that there's sth wrong loading the data source
             e.printStackTrace();
         }
@@ -108,25 +108,19 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         WindowUtils.setNavigationBarStatusBarHide(MainActivity.this);
     }
 
-    private void setupSharedPreferences() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mRouterUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
-        mVideoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));
-        sharedPreferences.getBoolean(getString(R.string.pref_key_test_enabled),getResources().getBoolean(R.bool.pref_key_test_enabled_default));
-        sharedPreferences.getString(getString(R.string.pref_key_camera_url_test), getString(R.string.pref_key_camera_url_test_default));
-        sharedPreferences.getString(getString(R.string.pref_key_router_url_test), getString(R.string.pref_key_router_url_test_default));
-        sharedPreferences.getString(getString(R.string.pref_key_left_motor_speed), getString(R.string.pref_key_left_motor_speed_default));
-        sharedPreferences.getString(getString(R.string.pref_key_right_motor_speed), getString(R.string.pref_key_right_motor_speed_default));
-        sharedPreferences.getString(getString(R.string.pref_key_len_on), getString(R.string.pref_key_len_on_default));
-        sharedPreferences.getString(getString(R.string.pref_key_len_off), getString(R.string.pref_key_len_off_default));
-
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+        // 释放播放器
+        if(mVideoView != null) {
+            mVideoView.release();
+        }
+        mVideoView = null;
     }
+
+
 
 
     private void onPrepared(IMediaPlayer mp) {
@@ -168,12 +162,29 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
+    private void loadParameters() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mRouterUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
+        mVideoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));
+//        sharedPreferences.getBoolean(getString(R.string.pref_key_test_enabled),getResources().getBoolean(R.bool.pref_key_test_enabled_default));
+//        sharedPreferences.getString(getString(R.string.pref_key_camera_url_test), getString(R.string.pref_key_camera_url_test_default));
+//        sharedPreferences.getString(getString(R.string.pref_key_router_url_test), getString(R.string.pref_key_router_url_test_default));
+//        sharedPreferences.getString(getString(R.string.pref_key_left_motor_speed), getString(R.string.pref_key_left_motor_speed_default));
+//        sharedPreferences.getString(getString(R.string.pref_key_right_motor_speed), getString(R.string.pref_key_right_motor_speed_default));
+//        sharedPreferences.getString(getString(R.string.pref_key_len_on), getString(R.string.pref_key_len_on_default));
+//        sharedPreferences.getString(getString(R.string.pref_key_len_off), getString(R.string.pref_key_len_off_default));
+    }
+
+    // TODO: 19-4-21 put this method to SettingsActivity, this method is useless here
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_key_router_url))) {
             mRouterUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
         } else if (key.equals(getString(R.string.pref_key_camera_url))) {
             mVideoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));
+            Log.i("Test", "PreferenceChanged");
+            // reload the video view
+            mVideoView.reload(mVideoUrl, true);
         } else if (key.equals(getString(R.string.pref_key_test_enabled))) {
             sharedPreferences.getBoolean(getString(R.string.pref_key_test_enabled),getResources().getBoolean(R.bool.pref_key_test_enabled_default));
         } else if (key.equals(getString(R.string.pref_key_camera_url_test))) {
