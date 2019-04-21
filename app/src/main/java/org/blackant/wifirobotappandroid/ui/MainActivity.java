@@ -59,9 +59,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         setContentView(R.layout.activity_main);
 
-        // hide the StatusBar and the NavigationBar
-        WindowUtils.setNavigationBarStatusBarHide(MainActivity.this);
-
         // load data from sharedpreference
         setupSharedPreferences();
 
@@ -101,6 +98,14 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             e.printStackTrace();
         }
         mVideoView.prepareAsync();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // hide the StatusBar and the NavigationBar
+        WindowUtils.setNavigationBarStatusBarHide(MainActivity.this);
     }
 
     private void setupSharedPreferences() {
