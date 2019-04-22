@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.baidu.mapapi.map.MapView;
 import com.ksyun.media.player.IMediaPlayer;
 import com.ksyun.media.player.KSYMediaPlayer;
 import com.ksyun.media.player.KSYTextureView;
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private final View.OnClickListener changeAudioImgListener = this::changeAudioImg;
     private final View.OnClickListener changeLightImgListener = this::changeLightImg;
 
+    private MapView mMapView = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         // load parameters from SharedPreferences
         loadParameters();
+
+        mMapView = findViewById(R.id.bmapView);
 
         // video view
         mVideoView = findViewById(R.id.ksy_tv);
@@ -106,6 +111,17 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         // hide the StatusBar and the NavigationBar
         WindowUtils.setNavigationBarStatusBarHide(MainActivity.this);
+
+        //在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
+        mMapView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        //在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
+        mMapView.onPause();
     }
 
     @Override
@@ -118,6 +134,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             mVideoView.release();
         }
         mVideoView = null;
+
+        //在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
+        mMapView.onDestroy();
     }
 
 
@@ -163,6 +182,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     private void loadParameters() {
+        /**
+         * load parameters from SharedPreferences
+         */
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mRouterUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
         mVideoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));

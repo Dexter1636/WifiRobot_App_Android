@@ -13,9 +13,18 @@
     </com.ksyun.media.player.KSYTextureView>
 
     <include
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    layout="@layout/menu_bar" />
+        android:id="@+id/include"
+        layout="@layout/menu_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/bmapView"
+        android:layout_width="180dp"
+        android:layout_height="120dp"
+        android:clickable="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include" />
 
     <org.blackant.wifirobotappandroid.views.RockerView
         android:layout_width="230dp"
