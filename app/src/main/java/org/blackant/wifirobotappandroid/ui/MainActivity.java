@@ -58,14 +58,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         setContentView(R.layout.activity_main);
 
-        // load parameters from SharedPreferences
-        loadParameters();
-
-        // video view
-        mVideoView = findViewById(R.id.ksy_tv);
-        mVideoView.shouldAutoPlay(true);
-        mVideoView.prepareAsync();
-
         // buttons
         btnSettings = findViewById(R.id.ButtonCus);
         btnSettings.setOnClickListener(jumpToSettingsListener);
@@ -74,6 +66,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         btnLight = findViewById(R.id.btnLight);
         btnLight.setOnClickListener(changeLightImgListener);
 
+        // load parameters from SharedPreferences
+        loadParameters();
+
+        // video view
+        mVideoView = findViewById(R.id.ksy_tv);
+        mVideoView.shouldAutoPlay(true);
 
         // set listeners for the video
         mVideoView.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
@@ -83,37 +81,61 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         mVideoView.setOnVideoSizeChangedListener(mOnVideoSizeChangeListener);
         mVideoView.setOnErrorListener(mOnErrorListener);
         mVideoView.setOnSeekCompleteListener(mOnSeekCompletedListener);
+
         // set parameters for the video player
         mVideoView.setBufferTimeMax(2.0f);
         mVideoView.setTimeout(5, 30);
-        //......
-        // other parameters
-        //......
+
         // set the url of the video and get prepared
         try {
             mVideoView.setDataSource(mVideoUrl);
         } catch (IOException e) {
-            Log.e("MediaPlayerError", "There's sth wrong loading the data source");
+            Log.e("MediaPlayerError", "There's sth wrong loading the video data source");
             // TODO: 19-3-24 tell the user that there's sth wrong loading the data source
             e.printStackTrace();
         }
         mVideoView.prepareAsync();
+        Log.i("lifecycle", "prepareAsync");
     }
 
     @Override
     protected void onResume() {
+        Log.i("lifecycle", "onResume");
         super.onResume();
 
         // hide the StatusBar and the NavigationBar
         WindowUtils.setNavigationBarStatusBarHide(MainActivity.this);
+
+        if (mVideoView != null) {
+            mVideoView.runInForeground();
+            mVideoView.start();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        Log.i("lifecycle", "onPause");
+        super.onPause();
+
+        if (mVideoView != null) {
+            mVideoView.runInBackground(false);
+        }
+
+//        // release the video player
+//        if(mVideoView != null) {
+//            Log.i("lifecycle", "release");
+//            mVideoView.release();
+//        }
+//        mVideoView = null;
     }
 
     @Override
     protected void onDestroy() {
+        Log.i("lifecycle", "onDestroy");
         super.onDestroy();
 
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
-        // 释放播放器
+        // release the video player
         if(mVideoView != null) {
             mVideoView.release();
         }
@@ -129,6 +151,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             mVideoView.setVideoScalingMode(KSYMediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
             // 开始播放视频
             mVideoView.start();
+            Log.i("lifecycle", "onPrepared");
+        } else {
+            Log.e("MediaPlayerError", "mVideoView == null when method onPrepared called");
         }
     }
 
@@ -183,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         } else if (key.equals(getString(R.string.pref_key_camera_url))) {
             mVideoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));
             Log.i("Test", "PreferenceChanged");
+            // TODO: 19-4-26
             // reload the video view
             mVideoView.reload(mVideoUrl, true);
         } else if (key.equals(getString(R.string.pref_key_test_enabled))) {
