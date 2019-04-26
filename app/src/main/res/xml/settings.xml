@@ -52,10 +52,15 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="离线地图"
-        android:key="pref_key_map_settings">
+        android:key="@string/pref_key_map_settings">
         <Preference android:title="离线地图管理"
             android:key="Map"
-            android:summary=""/>
+            android:summary="">
+        <intent android:action="android.intent.action.VIEW"
+            android:targetClass="org.blackant.wifirobotappandroid.ui.OfflineMapActivity"
+            android:targetPackage="org.blackant.wifirobotappandroid">
+        </intent>
+        </Preference>
     </PreferenceCategory>
 
 </PreferenceScreen>

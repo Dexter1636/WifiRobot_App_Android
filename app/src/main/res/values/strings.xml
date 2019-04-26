@@ -28,6 +28,8 @@
     <string name="pref_key_len_off_default" translatable="false">FF040000FF</string>
 
 
+    <string name="pref_key_map_settings">pref_key_map_settings</string>
+
 
     <bool name="pref_key_test_enabled_default">false</bool>
 
