@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     // 播放完成时会发出onCompletion回调
     private IMediaPlayer.OnCompletionListener mOnCompletionListener;
     // 播放器遇到错误时会发出onError回调
-    private IMediaPlayer.OnErrorListener mOnErrorListener = MainActivity::onError;
+    private IMediaPlayer.OnErrorListener mOnErrorListener = this::onError;
     private IMediaPlayer.OnInfoListener mOnInfoListener;
     private IMediaPlayer.OnVideoSizeChangedListener mOnVideoSizeChangeListener;
     private IMediaPlayer.OnSeekCompleteListener mOnSeekCompletedListener;
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
-    private static boolean onError(IMediaPlayer mp, int what, int extra) {
+    private boolean onError(IMediaPlayer mp, int what, int extra) {
         Log.e("MediaPlayerError", "what: " + what + " extra: " + extra);
         return false;
     }
