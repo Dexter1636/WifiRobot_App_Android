@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -34,12 +35,11 @@ import org.blackant.wifirobotappandroid.R;
 import org.blackant.wifirobotappandroid.utilities.WindowUtils;
 
 import java.io.IOException;
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    // TODO: 19-3-24 let the user to set the url
+    // TODO: 19-3-24 let the user set the url
     // the url of video live stream
     private String mVideoUrl;
     // the url of robot control
@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         Log.i("lifecycle", "prepareAsync");
 
         // init the map
+        checkPermission();
         SDKInitializer.initialize(getApplicationContext());
         initMap();
     }
@@ -185,6 +186,59 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
 
 
+
+    protected void checkPermission() {
+        //6.0之后要动态获取权限，重要！！
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // 检查该权限是否已经获取
+            // 权限是否已经 授权 GRANTED---授权  DINIED---拒绝
+
+            // sd卡权限
+            String[] SdCardPermission = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            if (ContextCompat.checkSelfPermission(this, SdCardPermission[0]) != PackageManager.PERMISSION_GRANTED) {
+                // 如果没有授予该权限，就去提示用户请求
+                ActivityCompat.requestPermissions(this, SdCardPermission, 100);
+            }
+
+            //手机状态权限
+            String[] readPhoneStatePermission = {Manifest.permission.READ_PHONE_STATE};
+            if (ContextCompat.checkSelfPermission(this, readPhoneStatePermission[0]) != PackageManager.PERMISSION_GRANTED) {
+                // 如果没有授予该权限，就去提示用户请求
+                ActivityCompat.requestPermissions(this, readPhoneStatePermission, 200);
+            }
+
+            //定位权限
+            String[] locationPermission = {Manifest.permission.ACCESS_FINE_LOCATION};
+            if (ContextCompat.checkSelfPermission(this, locationPermission[0]) != PackageManager.PERMISSION_GRANTED) {
+                // 如果没有授予该权限，就去提示用户请求
+                ActivityCompat.requestPermissions(this, locationPermission, 300);
+            }
+
+            String[] ACCESS_COARSE_LOCATION = {Manifest.permission.ACCESS_COARSE_LOCATION};
+            if (ContextCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION[0]) != PackageManager.PERMISSION_GRANTED) {
+                // 如果没有授予该权限，就去提示用户请求
+                ActivityCompat.requestPermissions(this, ACCESS_COARSE_LOCATION, 400);
+            }
+
+
+            String[] READ_EXTERNAL_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE};
+            if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE[0]) != PackageManager.PERMISSION_GRANTED) {
+                // 如果没有授予该权限，就去提示用户请求
+                ActivityCompat.requestPermissions(this, READ_EXTERNAL_STORAGE, 500);
+            }
+
+            String[] WRITE_EXTERNAL_STORAGE = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE[0]) != PackageManager.PERMISSION_GRANTED) {
+                // 如果没有授予该权限，就去提示用户请求
+                ActivityCompat.requestPermissions(this, WRITE_EXTERNAL_STORAGE, 600);
+            }
+
+        } else {
+            //doSdCardResult();
+        }
+        //LocationClient.reStart();
+    }
 
     private void onPrepared(IMediaPlayer mp) {
         if (mVideoView != null) {
@@ -364,11 +418,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
             int code = location.getLocType();
             Log.e("baidumap", String.valueOf(code));
-
-
         }
     }
 }
-
-
-

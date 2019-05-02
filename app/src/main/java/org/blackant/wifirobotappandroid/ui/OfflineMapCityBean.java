@@ -1,8 +1,7 @@
 package org.blackant.wifirobotappandroid.ui;
 
 
-public class OfflineMapCityBean
-{
+public class OfflineMapCityBean {
     private String cityName;
     private int cityCode;
     /**
