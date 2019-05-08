@@ -2,12 +2,9 @@ package org.blackant.wifirobotappandroid.ui;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +22,8 @@ import com.baidu.mapapi.map.offline.MKOfflineMap;
 import com.baidu.mapapi.map.offline.MKOfflineMapListener;
 
 import org.blackant.wifirobotappandroid.R;
-import org.blackant.wifirobotappandroid.ui.OfflineMapCityBean.Flag;
+import org.blackant.wifirobotappandroid.models.OfflineMapCityBean;
+import org.blackant.wifirobotappandroid.models.OfflineMapCityBean.Flag;
 
 public class OfflineMapActivity extends Activity
 {

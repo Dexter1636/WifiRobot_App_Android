@@ -33,8 +33,11 @@ import com.ksyun.media.player.KSYTextureView;
 
 import org.blackant.wifirobotappandroid.R;
 import org.blackant.wifirobotappandroid.utilities.WindowUtils;
+import org.blackant.wifirobotappandroid.views.RockerView;
 
 import java.io.IOException;
+
+import static java.lang.String.valueOf;
 
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -45,12 +48,54 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     // the url of robot control
     private String mRouterUrl;
 
-
+    // buttons in menu bar
     private ImageButton btnSettings;
     private ImageButton btnAudio;
     private ImageButton btnLight;
     private boolean AudioChange = true;
     private boolean LightChange = true;
+
+    // baidu map
+    private MapView mMapView;
+    private BaiduMap mBaiduMap;
+    private LocationClient mLocationClient;
+    private LatLng latLng;
+    private boolean isFirstLoc = true; // 是否首次定位
+
+    // rocker view
+    private RockerView mRockerView;
+    private RockerView.OnShakeListener mOnShakeListener = new RockerView.OnShakeListener() {
+        @Override
+        public void onStart() {
+
+        }
+
+        @Override
+        public void direction(RockerView.Direction direction) {
+            switch (direction) {
+                case DIRECTION_UP:
+                    Log.i("rockerview", "++++UP++++");
+                    break;
+                case DIRECTION_DOWN:
+                    Log.i("rockerview", "++++DOWN++++");
+                    break;
+                case DIRECTION_LEFT:
+                    Log.i("rockerview", "++++LEFT++++");
+                    break;
+                case DIRECTION_RIGHT:
+                    Log.i("rockerview", "++++RIGHT++++");
+                    break;
+                case DIRECTION_CENTER:
+                    Log.i("rockerview", "++++CENTER++++");
+                    break;
+            }
+        }
+
+        @Override
+        public void onFinish() {
+
+        }
+    };
 
     // 播放器的对象
     private KSYTextureView mVideoView;
@@ -69,13 +114,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private final View.OnClickListener changeAudioImgListener = this::changeAudioImg;
     private final View.OnClickListener changeLightImgListener = this::changeLightImg;
 
-    private MapView mMapView;
-    private BaiduMap mBaiduMap;
-    private LocationClient mLocationClient;
-
-    private LatLng latLng;
-    private boolean isFirstLoc = true; // 是否首次定位
-
 
 
 
@@ -88,13 +126,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         // load parameters from SharedPreferences
         loadParameters();
 
-        mMapView = findViewById(R.id.bmapView);
-
-        // video view
-        mVideoView = findViewById(R.id.ksy_tv);
-        mVideoView.shouldAutoPlay(true);
-        mVideoView.prepareAsync();
-
         // buttons
         btnSettings = findViewById(R.id.ButtonCus);
         btnSettings.setOnClickListener(jumpToSettingsListener);
@@ -102,6 +133,15 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         btnAudio.setOnClickListener(changeAudioImgListener);
         btnLight = findViewById(R.id.btnLight);
         btnLight.setOnClickListener(changeLightImgListener);
+
+        // map view
+        mMapView = findViewById(R.id.baidu_mv);
+
+        // rocker view
+        mRockerView = findViewById(R.id.control_rv);
+        if (mRockerView != null) {
+            mRockerView.setOnShakeListener(mOnShakeListener);
+        }
 
         // video view
         mVideoView = findViewById(R.id.ksy_tv);
@@ -417,7 +457,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             }
 
             int code = location.getLocType();
-            Log.e("baidumap", String.valueOf(code));
+            Log.e("baidumap", valueOf(code));
         }
     }
 }

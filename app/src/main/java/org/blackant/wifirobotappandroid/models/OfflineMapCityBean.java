@@ -1,4 +1,4 @@
-package org.blackant.wifirobotappandroid.ui;
+package org.blackant.wifirobotappandroid.models;
 
 
 public class OfflineMapCityBean {
