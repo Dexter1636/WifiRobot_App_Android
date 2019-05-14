@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private int steeringEngineValue_X = 90;
     private int steeringEngineValue_Y = 90;
 
-    Vibrator vibrator;
+    Vibrator mVibrator;
 
     // items in menu bar
     private ImageButton btnSettings;
@@ -352,9 +352,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             } else if (steeringEngineValue_Y > 170) {
                 steeringEngineValue_Y = 170;
             }
-            vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+            mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
             long[] pattern = { 10, 200, 10, 200, 10, 200}; // {Interval time, vibration duration...}
-            vibrator.vibrate(pattern, -1);
+            mVibrator.vibrate(pattern, -1);
         }
 
         sendSteeringEngineCommand(steeringEngineValue_X, steeringEngineValue_Y);

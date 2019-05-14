@@ -10,10 +10,10 @@ android {
         config {
         }
         release {
-            keyAlias 'key_store'
-            keyPassword '081021'
-            storeFile file('/Users/zhangluqun/Downloads/key_store.jks')
-            storePassword '081021'
+            keyAlias 'KEY_ALIAS'
+            keyPassword 'KEY_PASSWORD'
+            storeFile file('STORE_FILE')
+            storePassword 'KEY_PASSWORD'
         }
     }
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -53,6 +53,10 @@ dependencies {
     implementation 'com.ksyun.media:libksyplayer-arm64:2.1.2'
     implementation 'com.facebook.stetho:stetho:1.5.1'
     implementation 'com.facebook.stetho:stetho-okhttp3:1.5.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.7.0'
+    implementation 'com.google.code.gson:gson:2.8.2'
+
     // remove it when packing the final apk
     implementation 'com.ksyun.media:libksyplayer-x86_64:2.1.2'
     implementation files('libs/BaiduLBS_Android.jar')
