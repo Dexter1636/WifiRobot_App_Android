@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("org.blackant.wifirobot_app_android", appContext.getPackageName());
+        assertEquals("org.blackant.wifirobotappandroid", appContext.getPackageName());
     }
 }

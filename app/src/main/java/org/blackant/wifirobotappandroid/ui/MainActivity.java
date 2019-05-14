@@ -4,15 +4,19 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
@@ -42,18 +46,24 @@ import static java.lang.String.valueOf;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    // TODO: 19-3-24 let the user set the url
     // the url of video live stream
     private String mVideoUrl;
     // the url of robot control
     private String mRouterUrl;
+    // the threshold value of the steering engine
+    private int steeringEngineValue_X = 90;
+    private int steeringEngineValue_Y = 90;
 
-    // buttons in menu bar
+    Vibrator vibrator;
+
+    // items in menu bar
     private ImageButton btnSettings;
+    private ImageButton btnScreenShot;
     private ImageButton btnAudio;
     private ImageButton btnLight;
     private boolean AudioChange = true;
     private boolean LightChange = true;
+    private TextView tvMsg;
 
     // baidu map
     private MapView mMapView;
@@ -61,6 +71,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private LocationClient mLocationClient;
     private LatLng latLng;
     private boolean isFirstLoc = true; // 是否首次定位
+
+    // 播放器的对象
+    private KSYTextureView mVideoView;
 
     // rocker view
     private RockerView mRockerView;
@@ -97,22 +110,32 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     };
 
-    // 播放器的对象
-    private KSYTextureView mVideoView;
-    private IMediaPlayer.OnBufferingUpdateListener mOnBufferingUpdateListener;
-    // 播放器在准备完成，可以开播时会发出onPrepared回调
-    private IMediaPlayer.OnPreparedListener mOnPreparedListener = this::onPrepared;
-    // 播放完成时会发出onCompletion回调
-    private IMediaPlayer.OnCompletionListener mOnCompletionListener;
-    // 播放器遇到错误时会发出onError回调
-    private IMediaPlayer.OnErrorListener mOnErrorListener = this::onError;
-    private IMediaPlayer.OnInfoListener mOnInfoListener;
-    private IMediaPlayer.OnVideoSizeChangedListener mOnVideoSizeChangeListener;
-    private IMediaPlayer.OnSeekCompleteListener mOnSeekCompletedListener;
+    private float baseX, baseY, currentX, currentY, baseSteeringEngineValue_X = 90, baseSteeringEngineValue_Y = 90;
+    private View.OnTouchListener mOnTouchListener = (v, event) -> {
+        v.performClick();
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:// 按下
+                baseX = event.getX();
+                baseY = event.getY();
+                break;
+            case MotionEvent.ACTION_MOVE:// 移动
+                currentX = event.getX();
+                currentY = event.getY();
+                Log.i("steering", "currentX=" + currentX + " currentY=" + currentY);
+                onScrollSteeringEngine();
+                break;
+            case MotionEvent.ACTION_UP:// 抬起
+            case MotionEvent.ACTION_CANCEL:// 移出区域
+                baseX = currentX;
+                baseY = currentY;
+                baseSteeringEngineValue_X = steeringEngineValue_X;
+                baseSteeringEngineValue_Y = steeringEngineValue_Y;
+                break;
+        }
+        return true;
+    };
 
-    private final View.OnClickListener jumpToSettingsListener = this::jumpToSettings;
-    private final View.OnClickListener changeAudioImgListener = this::changeAudioImg;
-    private final View.OnClickListener changeLightImgListener = this::changeLightImg;
+
 
 
 
@@ -126,13 +149,20 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         // load parameters from SharedPreferences
         loadParameters();
 
-        // buttons
+        // check permissions
+        checkPermissions();
+
+        // items in menu bar
         btnSettings = findViewById(R.id.ButtonCus);
-        btnSettings.setOnClickListener(jumpToSettingsListener);
+        btnSettings.setOnClickListener(this::onBtnSettingsClicked);
+        btnScreenShot = findViewById(R.id.btnScreenShot);
+        btnScreenShot.setOnClickListener(this::onBtnScreenshotClicked);
         btnAudio = findViewById(R.id.btnAudio);
-        btnAudio.setOnClickListener(changeAudioImgListener);
+        btnAudio.setOnClickListener(this::onBtnAudioClicked);
         btnLight = findViewById(R.id.btnLight);
-        btnLight.setOnClickListener(changeLightImgListener);
+        btnLight.setOnClickListener(this::onBtnLightClicked);
+        tvMsg = findViewById(R.id.tv_msg);
+        tvMsg.setText("init");
 
         // map view
         mMapView = findViewById(R.id.baidu_mv);
@@ -145,16 +175,20 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         // video view
         mVideoView = findViewById(R.id.ksy_tv);
+        mVideoView.setOnTouchListener(mOnTouchListener);
         mVideoView.shouldAutoPlay(true);
 
         // set listeners for the video
-        mVideoView.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
-        mVideoView.setOnCompletionListener(mOnCompletionListener);
-        mVideoView.setOnPreparedListener(mOnPreparedListener);
-        mVideoView.setOnInfoListener(mOnInfoListener);
-        mVideoView.setOnVideoSizeChangedListener(mOnVideoSizeChangeListener);
-        mVideoView.setOnErrorListener(mOnErrorListener);
-        mVideoView.setOnSeekCompleteListener(mOnSeekCompletedListener);
+//        mVideoView.setOnBufferingUpdateListener(this::onBufferingUpdated);
+        // 播放器在准备完成，可以开播时会发出onPrepared回调
+        mVideoView.setOnPreparedListener(this::onPrepared);
+//        // 播放完成时会发出onCompletion回调
+//        mVideoView.setOnCompletionListener(this::onCompletion);
+//        mVideoView.setOnInfoListener(this::onInfo);
+//        mVideoView.setOnVideoSizeChangedListener(this::onVideoSizeChanged);
+        // 播放器遇到错误时会发出onError回调
+        mVideoView.setOnErrorListener(this::onError);
+//        mVideoView.setOnSeekCompleteListener(this::onSeekCompleted);
 
         // set parameters for the video player
         mVideoView.setBufferTimeMax(2.0f);
@@ -172,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         Log.i("lifecycle", "prepareAsync");
 
         // init the map
-        checkPermission();
         SDKInitializer.initialize(getApplicationContext());
         initMap();
     }
@@ -227,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
 
 
-    protected void checkPermission() {
+    protected void checkPermissions() {
         //6.0之后要动态获取权限，重要！！
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -274,6 +307,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 ActivityCompat.requestPermissions(this, WRITE_EXTERNAL_STORAGE, 600);
             }
 
+            String[] VIBRATE = {Manifest.permission.VIBRATE};
+            if (ContextCompat.checkSelfPermission(this, VIBRATE[0]) != PackageManager.PERMISSION_GRANTED) {
+                // 如果没有授予该权限，就去提示用户请求
+                ActivityCompat.requestPermissions(this, VIBRATE, 600);
+            }
         } else {
             //doSdCardResult();
         }
@@ -296,6 +334,38 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         Log.e("MediaPlayerError", "what: " + what + " extra: " + extra);
         return false;
     }
+
+
+    private void onScrollSteeringEngine() {
+            steeringEngineValue_X = (int)(baseSteeringEngineValue_X - (currentX-baseX)/20);
+            steeringEngineValue_Y = (int)(baseSteeringEngineValue_Y - (currentY-baseY)/20);
+            Log.i("steering", "x=" + steeringEngineValue_X + " y=" + steeringEngineValue_Y);
+
+        if ((steeringEngineValue_X < 10) || (steeringEngineValue_X > 170) || (steeringEngineValue_Y < 10) || (steeringEngineValue_Y > 170)) {
+            if (steeringEngineValue_X < 10) {
+                steeringEngineValue_X = 10;
+            } else if (steeringEngineValue_X > 170) {
+                steeringEngineValue_X = 170;
+            }
+            if (steeringEngineValue_Y < 10) {
+                steeringEngineValue_Y = 10;
+            } else if (steeringEngineValue_Y > 170) {
+                steeringEngineValue_Y = 170;
+            }
+            vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+            long[] pattern = { 10, 200, 10, 200, 10, 200}; // {Interval time, vibration duration...}
+            vibrator.vibrate(pattern, -1);
+        }
+
+        sendSteeringEngineCommand(steeringEngineValue_X, steeringEngineValue_Y);
+        tvMsg.setText(String.format("x:%s y:%s", valueOf(steeringEngineValue_X), valueOf(steeringEngineValue_Y)));
+    }
+
+    // TODO: 19-5-10 send the commmand
+    private void sendSteeringEngineCommand(float steeringEngineValue_X, float steeringEngineValue_Y) {
+
+    }
+
 
     private void initMap() {
         //获取地图控件引用
@@ -353,12 +423,17 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         mLocationClient.setLocOption(option);
     }
 
-    private void jumpToSettings(View v) {
+    private void onBtnSettingsClicked(View v) {
         Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(intent);
     }
 
-    private void changeAudioImg(View v) {
+    private void onBtnScreenshotClicked(View v) {
+        Bitmap bitmap = mVideoView.getScreenShot();
+        // TODO: 19-5-14
+    }
+
+    private void onBtnAudioClicked(View v) {
         if (AudioChange) {
             btnAudio.setImageResource(R.drawable.ic_mic_off_grey_50_24dp);
             AudioChange = false;
@@ -368,7 +443,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
-    private void changeLightImg(View v) {
+    private void onBtnLightClicked(View v) {
         if (LightChange) {
             btnLight.setImageResource(R.drawable.ic_flash_off_grey_50_24dp);
             LightChange = false;
@@ -378,10 +453,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
+    /**
+     * load parameters from SharedPreferences
+     */
     private void loadParameters() {
-        /**
-         * load parameters from SharedPreferences
-         */
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mRouterUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
         mVideoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));

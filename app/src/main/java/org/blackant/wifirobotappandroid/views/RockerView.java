@@ -13,7 +13,7 @@ import android.view.View;
 import static java.lang.String.valueOf;
 
 
-public class RockerView extends View implements Runnable {
+public class RockerView extends View {
 
     private int DEFAULT_VIEW_SIZE = 200;
     private int DEFAULT_ROCKER_RADIUS = 100;
@@ -70,7 +70,6 @@ public class RockerView extends View implements Runnable {
         mPaint.setColor(Color.rgb(102,145, 235));
         mPaint.setAlpha(0x7A);
         mPaint.setStrokeWidth(10);
-        new Thread(this).start();
     }
 
     @Override
@@ -147,20 +146,20 @@ public class RockerView extends View implements Runnable {
         return true;
     }
 
-    @Override
-    public void run() {
-        // TODO Auto-generated method stub
-        while(!Thread.currentThread().isInterrupted()) {
-            try{
-                Thread.sleep(50);
-            } catch(InterruptedException e) {
-                e.printStackTrace();
-                Thread.currentThread().interrupt();
-            }
-            // 异步重绘
-            postInvalidate();
-        }
-    }
+//    @Override
+//    public void run() {
+//        // TODO Auto-generated method stub
+//        while(!Thread.currentThread().isInterrupted()) {
+//            try{
+//                Thread.sleep(50);
+//            } catch(InterruptedException e) {
+//                e.printStackTrace();
+//                Thread.currentThread().interrupt();
+//            }
+//            // 异步重绘
+//            postInvalidate();
+//        }
+//    }
 
 
     /**
