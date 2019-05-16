@@ -6,12 +6,12 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,11 +31,15 @@ import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.UiSettings;
 import com.baidu.mapapi.model.LatLng;
+import com.google.gson.Gson;
 import com.ksyun.media.player.IMediaPlayer;
 import com.ksyun.media.player.KSYMediaPlayer;
 import com.ksyun.media.player.KSYTextureView;
 
 import org.blackant.wifirobotappandroid.R;
+import org.blackant.wifirobotappandroid.models.jsonBean.LocationDataBean;
+import org.blackant.wifirobotappandroid.models.jsonBean.SteeringEngineValueBean;
+import org.blackant.wifirobotappandroid.utilities.JsonUtils;
 import org.blackant.wifirobotappandroid.utilities.WindowUtils;
 import org.blackant.wifirobotappandroid.views.RockerView;
 
@@ -47,9 +51,11 @@ import static java.lang.String.valueOf;
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     // the url of video live stream
-    private String mVideoUrl;
+    private String videoUrl;
     // the url of robot control
-    private String mRouterUrl;
+    private String routerUrl;
+    private String steeringEngineUrl;
+    private String locationUrl;
     // the threshold value of the steering engine
     private int steeringEngineValue_X = 90;
     private int steeringEngineValue_Y = 90;
@@ -69,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private MapView mMapView;
     private BaiduMap mBaiduMap;
     private LocationClient mLocationClient;
-    private LatLng latLng;
+    private LatLng mLocation;
     private boolean isFirstLoc = true; // 是否首次定位
 
     // 播放器的对象
@@ -135,6 +141,25 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         return true;
     };
 
+    // a loop to receive GPS data
+    private Runnable receiveGpsRunnable = () -> {
+        Log.i("receiveGpsRunnable", "msg received");
+        // TODO: 19-5-16 receive GPS data
+        if (null!=locationUrl) {
+            String response = JsonUtils.get(locationUrl);
+            if (!response.equals("Network Error")) {
+                LocationDataBean bean = new Gson().fromJson(response, LocationDataBean.class);
+            } else {
+                // TODO: 19-5-16 Network Error
+            }
+        }
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    };
+
 
 
 
@@ -196,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         // set the url of the video and get prepared
         try {
-            mVideoView.setDataSource(mVideoUrl);
+            mVideoView.setDataSource(videoUrl);
         } catch (IOException e) {
             Log.e("MediaPlayerError", "There's sth wrong loading the video data source");
             // TODO: 19-3-24 tell the user that there's sth wrong loading the data source
@@ -208,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         // init the map
         SDKInitializer.initialize(getApplicationContext());
         initMap();
+        new Thread(receiveGpsRunnable).start();
     }
 
     @Override
@@ -357,13 +383,16 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             mVibrator.vibrate(pattern, -1);
         }
 
-        sendSteeringEngineCommand(steeringEngineValue_X, steeringEngineValue_Y);
+        sendSteeringEngineCommand();
         tvMsg.setText(String.format("x:%s y:%s", valueOf(steeringEngineValue_X), valueOf(steeringEngineValue_Y)));
     }
 
-    // TODO: 19-5-10 send the commmand
-    private void sendSteeringEngineCommand(float steeringEngineValue_X, float steeringEngineValue_Y) {
-
+    // TODO: 19-5-10 send the command
+    private void sendSteeringEngineCommand() {
+        SteeringEngineValueBean bean = new SteeringEngineValueBean(steeringEngineValue_X, steeringEngineValue_Y);
+        String json = new Gson().toJson(bean);
+        if (null!=steeringEngineUrl)
+            JsonUtils.postJson(json, steeringEngineUrl);
     }
 
 
@@ -430,7 +459,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     private void onBtnScreenshotClicked(View v) {
         Bitmap bitmap = mVideoView.getScreenShot();
-        // TODO: 19-5-14
+        // TODO: 19-5-14 save the image
     }
 
     private void onBtnAudioClicked(View v) {
@@ -453,13 +482,14 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
+
     /**
      * load parameters from SharedPreferences
      */
     private void loadParameters() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mRouterUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
-        mVideoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));
+        routerUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
+        videoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));
 //        sharedPreferences.getBoolean(getString(R.string.pref_key_test_enabled),getResources().getBoolean(R.bool.pref_key_test_enabled_default));
 //        sharedPreferences.getString(getString(R.string.pref_key_camera_url_test), getString(R.string.pref_key_camera_url_test_default));
 //        sharedPreferences.getString(getString(R.string.pref_key_router_url_test), getString(R.string.pref_key_router_url_test_default));
@@ -473,13 +503,13 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_key_router_url))) {
-            mRouterUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
+            routerUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
         } else if (key.equals(getString(R.string.pref_key_camera_url))) {
-            mVideoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));
+            videoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));
             Log.i("Test", "PreferenceChanged");
             // TODO: 19-4-26
             // reload the video view
-            mVideoView.reload(mVideoUrl, true);
+            mVideoView.reload(videoUrl, true);
         } else if (key.equals(getString(R.string.pref_key_test_enabled))) {
             sharedPreferences.getBoolean(getString(R.string.pref_key_test_enabled),getResources().getBoolean(R.bool.pref_key_test_enabled_default));
         } else if (key.equals(getString(R.string.pref_key_camera_url_test))) {
@@ -507,19 +537,21 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             if (location == null || mMapView == null){
                 return;
             }
-//            latLng = new LatLng(22.960000, 113.400000);
+//            mLocation = new LatLng(22.960000, 113.400000);
 
-            latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            mLocation = new LatLng(location.getLatitude(), location.getLongitude());
             MyLocationData locData = new MyLocationData.Builder()
                     .accuracy(0)
                     // 此处设置开发者获取到的方向信息，顺时针0-360
-                    .direction(100).latitude(location.getLatitude())
-                    .longitude(location.getLongitude()).build();
+                    .direction(100)
+                    .latitude(location.getLatitude())
+                    .longitude(location.getLongitude())
+                    .build();
             // 设置定位数据
             mBaiduMap.setMyLocationData(locData);
-            MapStatusUpdate mapstatus = MapStatusUpdateFactory.newLatLng(latLng);
+            MapStatusUpdate mapStatus = MapStatusUpdateFactory.newLatLng(mLocation);
             //改变地图状态
-            mBaiduMap.setMapStatus(mapstatus);
+            mBaiduMap.setMapStatus(mapStatus);
 
             if (isFirstLoc) {
                 isFirstLoc = false;
