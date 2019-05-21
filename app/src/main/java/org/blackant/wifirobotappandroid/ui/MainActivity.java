@@ -90,9 +90,7 @@ public class MainActivity extends AppCompatActivity {
     private RockerView mRockerView;
     private RockerView.OnShakeListener mOnShakeListener = new RockerView.OnShakeListener() {
         @Override
-        public void onStart() {
-
-        }
+        public void onStart() {}
 
         @Override
         public void direction(RockerView.Direction direction) {
@@ -116,9 +114,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFinish() {
-
-        }
+        public void onFinish() {}
     };
 
     private float baseX, baseY, currentX, currentY, baseSteeringEngineValue_X = 90, baseSteeringEngineValue_Y = 90;
@@ -253,7 +249,13 @@ public class MainActivity extends AppCompatActivity {
         // hide the StatusBar and the NavigationBar
         WindowUtils.setNavigationBarStatusBarHide(MainActivity.this);
 
+        String tempVideoUrl = videoUrl;
+        loadParameters();
+
         if (mVideoView != null) {
+            if (!tempVideoUrl.equals(videoUrl)) {
+                mVideoView.reload(videoUrl, true);
+            }
             mVideoView.runInForeground();
             mVideoView.start();
         }
@@ -291,6 +293,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+    /** Permissions **/
 
     protected void checkPermissions() {
         //6.0之后要动态获取权限，重要！！
@@ -350,6 +354,9 @@ public class MainActivity extends AppCompatActivity {
         //LocationClient.reStart();
     }
 
+
+    /** Video Player **/
+
     private void onPrepared(IMediaPlayer mp) {
         if (mVideoView != null) {
             // 设置视频伸缩模式，此模式为裁剪模式
@@ -367,6 +374,8 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+
+    /** Steering Engine **/
 
     private void onScrollSteeringEngine() {
             steeringEngineValue_X = (int)(baseSteeringEngineValue_X - (currentX-baseX)/20);
@@ -401,6 +410,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    /** Map **/
 
     private void initMap() {
         //获取地图控件引用
@@ -458,9 +469,12 @@ public class MainActivity extends AppCompatActivity {
         mLocationClient.setLocOption(option);
     }
 
+
+    /** When Buttons Are Clicked **/
+
     private void onBtnSettingsClicked(View v) {
-        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-        startActivity(intent);
+        Intent sendIntent = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivityForResult(sendIntent, 1);
     }
 
     private void onBtnScreenshotClicked(View v) {
@@ -488,6 +502,7 @@ public class MainActivity extends AppCompatActivity {
             LightChange = true;
         }
     }
+
 
     /**
      * Save an image and return its location
@@ -522,7 +537,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * load parameters from SharedPreferences
+     * Load parameters from SharedPreferences
      */
     private void loadParameters() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);

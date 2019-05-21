@@ -52,29 +52,28 @@ public class PrefsFragment extends PreferenceFragment implements SharedPreferenc
         updatePrefSummary(findPreference(key));
 
         Log.i("Test", "PreferenceChanged");
-        if (key.equals(getString(R.string.pref_key_router_url))) {
+//        if (key.equals(getString(R.string.pref_key_router_url))) {
 //            routerUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
-        } else if (key.equals(getString(R.string.pref_key_camera_url))) {
+//        } else if (key.equals(getString(R.string.pref_key_camera_url))) {
 //            videoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));
-            Log.i("Test", "PreferenceChanged");
-            // TODO: 19-4-26
-            // reload the video view
+//            Log.i("Test", "PreferenceChanged");
+//            // reload the video view
 //            mVideoView.reload(videoUrl, true);
-        } else if (key.equals(getString(R.string.pref_key_test_enabled))) {
-            sharedPreferences.getBoolean(getString(R.string.pref_key_test_enabled),getResources().getBoolean(R.bool.pref_key_test_enabled_default));
-        } else if (key.equals(getString(R.string.pref_key_camera_url_test))) {
-            sharedPreferences.getString(getString(R.string.pref_key_camera_url_test), getString(R.string.pref_key_camera_url_test_default));
-        } else if (key.equals(getString(R.string.pref_key_router_url_test))) {
-            sharedPreferences.getString(getString(R.string.pref_key_router_url_test), getString(R.string.pref_key_router_url_test_default));
-        } else if (key.equals(getString(R.string.pref_key_left_motor_speed))) {
-            sharedPreferences.getString(getString(R.string.pref_key_left_motor_speed), getString(R.string.pref_key_left_motor_speed_default));
-        } else if (key.equals(getString(R.string.pref_key_right_motor_speed))) {
-            sharedPreferences.getString(getString(R.string.pref_key_right_motor_speed), getString(R.string.pref_key_right_motor_speed_default));
-        } else if (key.equals(getString(R.string.pref_key_len_on))) {
-            sharedPreferences.getString(getString(R.string.pref_key_len_on), getString(R.string.pref_key_len_on_default));
-        } else if (key.equals(getString(R.string.pref_key_len_off))) {
-            sharedPreferences.getString(getString(R.string.pref_key_len_off), getString(R.string.pref_key_len_off_default));
-        }
+//        } else if (key.equals(getString(R.string.pref_key_test_enabled))) {
+//            sharedPreferences.getBoolean(getString(R.string.pref_key_test_enabled),getResources().getBoolean(R.bool.pref_key_test_enabled_default));
+//        } else if (key.equals(getString(R.string.pref_key_camera_url_test))) {
+//            sharedPreferences.getString(getString(R.string.pref_key_camera_url_test), getString(R.string.pref_key_camera_url_test_default));
+//        } else if (key.equals(getString(R.string.pref_key_router_url_test))) {
+//            sharedPreferences.getString(getString(R.string.pref_key_router_url_test), getString(R.string.pref_key_router_url_test_default));
+//        } else if (key.equals(getString(R.string.pref_key_left_motor_speed))) {
+//            sharedPreferences.getString(getString(R.string.pref_key_left_motor_speed), getString(R.string.pref_key_left_motor_speed_default));
+//        } else if (key.equals(getString(R.string.pref_key_right_motor_speed))) {
+//            sharedPreferences.getString(getString(R.string.pref_key_right_motor_speed), getString(R.string.pref_key_right_motor_speed_default));
+//        } else if (key.equals(getString(R.string.pref_key_len_on))) {
+//            sharedPreferences.getString(getString(R.string.pref_key_len_on), getString(R.string.pref_key_len_on_default));
+//        } else if (key.equals(getString(R.string.pref_key_len_off))) {
+//            sharedPreferences.getString(getString(R.string.pref_key_len_off), getString(R.string.pref_key_len_off_default));
+//        }
     }
 
     private void initSummary(Preference p) {
