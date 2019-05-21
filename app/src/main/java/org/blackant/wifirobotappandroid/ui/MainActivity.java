@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
@@ -40,15 +41,19 @@ import org.blackant.wifirobotappandroid.R;
 import org.blackant.wifirobotappandroid.models.jsonBean.LocationDataBean;
 import org.blackant.wifirobotappandroid.models.jsonBean.SteeringEngineValueBean;
 import org.blackant.wifirobotappandroid.utilities.JsonUtils;
+import org.blackant.wifirobotappandroid.utilities.ToastUtils;
 import org.blackant.wifirobotappandroid.utilities.WindowUtils;
 import org.blackant.wifirobotappandroid.views.RockerView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static java.lang.String.valueOf;
 
 
-public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends AppCompatActivity {
 
     // the url of video live stream
     private String videoUrl;
@@ -56,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private String routerUrl;
     private String steeringEngineUrl;
     private String locationUrl;
-    // the threshold value of the steering engine
+    // the value of the steering engine
     private int steeringEngineValue_X = 90;
     private int steeringEngineValue_Y = 90;
 
@@ -149,8 +154,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             String response = JsonUtils.get(locationUrl);
             if (!response.equals("Network Error")) {
                 LocationDataBean bean = new Gson().fromJson(response, LocationDataBean.class);
+                LatLng carLocation = new LatLng(bean.getLat(), bean.getLon());
+                // TODO: 19-5-21 redraw the location
             } else {
-                // TODO: 19-5-16 Network Error
+                tvMsg.setText("Network Error");
             }
         }
         try {
@@ -224,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             mVideoView.setDataSource(videoUrl);
         } catch (IOException e) {
             Log.e("MediaPlayerError", "There's sth wrong loading the video data source");
-            // TODO: 19-3-24 tell the user that there's sth wrong loading the data source
+            tvMsg.setText("Loading video source failed");
             e.printStackTrace();
         }
         mVideoView.prepareAsync();
@@ -269,7 +276,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         Log.i("lifecycle", "onDestroy");
         super.onDestroy();
 
-        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
         // release the video player
         if(mVideoView != null) {
             mVideoView.release();
@@ -387,12 +393,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         tvMsg.setText(String.format("x:%s y:%s", valueOf(steeringEngineValue_X), valueOf(steeringEngineValue_Y)));
     }
 
-    // TODO: 19-5-10 send the command
     private void sendSteeringEngineCommand() {
         SteeringEngineValueBean bean = new SteeringEngineValueBean(steeringEngineValue_X, steeringEngineValue_Y);
         String json = new Gson().toJson(bean);
-        if (null!=steeringEngineUrl)
+        if (null!=steeringEngineUrl) {
             JsonUtils.postJson(json, steeringEngineUrl);
+        }
     }
 
 
@@ -459,7 +465,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     private void onBtnScreenshotClicked(View v) {
         Bitmap bitmap = mVideoView.getScreenShot();
-        // TODO: 19-5-14 save the image
+        String ScreenShotDir = saveImg(bitmap);
+        ToastUtils.showShort(getApplicationContext(), "截屏已保存至" + ScreenShotDir);
     }
 
     private void onBtnAudioClicked(View v) {
@@ -482,6 +489,37 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
+    /**
+     * Save an image and return its location
+     *
+     * @param bmp   The image you want to save.
+     * @return      The string of the location.
+     */
+    public static String saveImg(Bitmap bmp) {
+        File appDir = new File(Environment.getExternalStorageDirectory(), "ScreenShot");
+        String ScreenShotDir = Environment.getExternalStorageDirectory().toString() + "/ScreenShot";
+        Log.i("ScreenShot", ScreenShotDir);
+        if (!appDir.exists()) {
+            appDir.mkdir();
+        }
+        String fileName = System.currentTimeMillis() + ".jpg";
+        File file = new File(appDir, fileName);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return ScreenShotDir;
+    }
+
 
     /**
      * load parameters from SharedPreferences
@@ -497,34 +535,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 //        sharedPreferences.getString(getString(R.string.pref_key_right_motor_speed), getString(R.string.pref_key_right_motor_speed_default));
 //        sharedPreferences.getString(getString(R.string.pref_key_len_on), getString(R.string.pref_key_len_on_default));
 //        sharedPreferences.getString(getString(R.string.pref_key_len_off), getString(R.string.pref_key_len_off_default));
-    }
-
-    // TODO: 19-4-21 put this method to SettingsActivity, this method is useless here
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.pref_key_router_url))) {
-            routerUrl = sharedPreferences.getString(getString(R.string.pref_key_router_url), getString(R.string.pref_key_router_url_default));
-        } else if (key.equals(getString(R.string.pref_key_camera_url))) {
-            videoUrl = sharedPreferences.getString(getString(R.string.pref_key_camera_url), getString(R.string.pref_key_camera_url_default));
-            Log.i("Test", "PreferenceChanged");
-            // TODO: 19-4-26
-            // reload the video view
-            mVideoView.reload(videoUrl, true);
-        } else if (key.equals(getString(R.string.pref_key_test_enabled))) {
-            sharedPreferences.getBoolean(getString(R.string.pref_key_test_enabled),getResources().getBoolean(R.bool.pref_key_test_enabled_default));
-        } else if (key.equals(getString(R.string.pref_key_camera_url_test))) {
-            sharedPreferences.getString(getString(R.string.pref_key_camera_url_test), getString(R.string.pref_key_camera_url_test_default));
-        } else if (key.equals(getString(R.string.pref_key_router_url_test))) {
-            sharedPreferences.getString(getString(R.string.pref_key_router_url_test), getString(R.string.pref_key_router_url_test_default));
-        } else if (key.equals(getString(R.string.pref_key_left_motor_speed))) {
-            sharedPreferences.getString(getString(R.string.pref_key_left_motor_speed), getString(R.string.pref_key_left_motor_speed_default));
-        } else if (key.equals(getString(R.string.pref_key_right_motor_speed))) {
-            sharedPreferences.getString(getString(R.string.pref_key_right_motor_speed), getString(R.string.pref_key_right_motor_speed_default));
-        } else if (key.equals(getString(R.string.pref_key_len_on))) {
-            sharedPreferences.getString(getString(R.string.pref_key_len_on), getString(R.string.pref_key_len_on_default));
-        } else if (key.equals(getString(R.string.pref_key_len_off))) {
-            sharedPreferences.getString(getString(R.string.pref_key_len_off), getString(R.string.pref_key_len_off_default));
-        }
     }
 
 
@@ -567,4 +577,5 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             Log.e("baidumap", valueOf(code));
         }
     }
+
 }
