@@ -3,31 +3,31 @@ package org.blackant.wifirobotappandroid.models.jsonBean;
 public class SteeringEngineValueBean {
 
     /**
-     * x :
-     * y :
+     * x_axis :
+     * y_axis :
      */
 
-    private int x;
-    private int y;
+    private int x_axis;
+    private int y_axis;
 
-    public SteeringEngineValueBean(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public SteeringEngineValueBean(int x_axis, int y_axis) {
+        this.x_axis = x_axis;
+        this.y_axis = y_axis;
     }
 
-    public int getX() {
-        return x;
+    public int getX_axis() {
+        return x_axis;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    public void setX_axis(int x_axis) {
+        this.x_axis = x_axis;
     }
 
-    public int getY() {
-        return y;
+    public int getY_axis() {
+        return y_axis;
     }
 
-    public void setY(int y) {
-        this.y = y;
+    public void setY_axis(int y_axis) {
+        this.y_axis = y_axis;
     }
 }

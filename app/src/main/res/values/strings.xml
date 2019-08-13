@@ -30,7 +30,9 @@
 
     <string name="pref_key_map_settings">pref_key_map_settings</string>
 
-
     <bool name="pref_key_test_enabled_default">false</bool>
+
+    <!-- Message Strings -->
+    <string name="msg_network_error">Network Error</string>
 
 </resources>

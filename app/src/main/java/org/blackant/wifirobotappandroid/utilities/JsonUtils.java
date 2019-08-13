@@ -25,7 +25,7 @@ public class JsonUtils {
      * 给服务端传递一个json串
      * @param json
      * @param url
-     * @return
+     * @return      The response of the server.
      */
     public static String postJson(String json, String url) {
         //创建一个OkHttpClient对象
@@ -44,9 +44,13 @@ public class JsonUtils {
             Response response = okHttpClient.newCall(request).execute();
             //判断请求是否成功
             if(response.isSuccessful()) {
-                String strResponse = response.body().string();
-                //打印服务端返回结果
-                Log.i(TAG, strResponse);
+                String strResponse = null;
+                if (response.body() != null) {
+                    strResponse = response.body().string();
+                    //打印服务端返回结果
+                    Log.i(TAG, strResponse);
+                }
+                Log.i(TAG, "Null Response!!!");
                 return strResponse;
             }
             else {

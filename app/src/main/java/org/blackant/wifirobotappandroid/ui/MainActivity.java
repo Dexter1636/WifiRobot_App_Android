@@ -1,6 +1,7 @@
 package org.blackant.wifirobotappandroid.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -8,6 +9,8 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
@@ -39,6 +42,7 @@ import com.ksyun.media.player.KSYTextureView;
 
 import org.blackant.wifirobotappandroid.R;
 import org.blackant.wifirobotappandroid.models.jsonBean.LocationDataBean;
+import org.blackant.wifirobotappandroid.models.jsonBean.ResponseStatusBean;
 import org.blackant.wifirobotappandroid.models.jsonBean.SteeringEngineValueBean;
 import org.blackant.wifirobotappandroid.utilities.JsonUtils;
 import org.blackant.wifirobotappandroid.utilities.ToastUtils;
@@ -83,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
     private LatLng mLocation;
     private boolean isFirstLoc = true; // 是否首次定位
 
+    private final int NETWORK_ERROR = -1;
+
     // 播放器的对象
     private KSYTextureView mVideoView;
 
@@ -90,31 +96,17 @@ public class MainActivity extends AppCompatActivity {
     private RockerView mRockerView;
     private RockerView.OnShakeListener mOnShakeListener = new RockerView.OnShakeListener() {
         @Override
-        public void onStart() {}
-
-        @Override
-        public void direction(RockerView.Direction direction) {
-            switch (direction) {
-                case DIRECTION_UP:
-                    Log.i("rockerview", "++++UP++++");
-                    break;
-                case DIRECTION_DOWN:
-                    Log.i("rockerview", "++++DOWN++++");
-                    break;
-                case DIRECTION_LEFT:
-                    Log.i("rockerview", "++++LEFT++++");
-                    break;
-                case DIRECTION_RIGHT:
-                    Log.i("rockerview", "++++RIGHT++++");
-                    break;
-                case DIRECTION_CENTER:
-                    Log.i("rockerview", "++++CENTER++++");
-                    break;
-            }
+        public void onStart() {
         }
 
         @Override
-        public void onFinish() {}
+        public void direction(RockerView.Direction direction) {
+            sendMoveCommand(direction);
+        }
+
+        @Override
+        public void onFinish() {
+        }
     };
 
     private float baseX, baseY, currentX, currentY, baseSteeringEngineValue_X = 90, baseSteeringEngineValue_Y = 90;
@@ -142,30 +134,52 @@ public class MainActivity extends AppCompatActivity {
         return true;
     };
 
-    // a loop to receive GPS data
-    private Runnable receiveGpsRunnable = () -> {
-        Log.i("receiveGpsRunnable", "msg received");
-        // TODO: 19-5-16 receive GPS data
-        if (null!=locationUrl) {
-            String response = JsonUtils.get(locationUrl);
-            if (!response.equals("Network Error")) {
-                LocationDataBean bean = new Gson().fromJson(response, LocationDataBean.class);
-                LatLng carLocation = new LatLng(bean.getLat(), bean.getLon());
-                // TODO: 19-5-21 redraw the location
-            } else {
-                tvMsg.setText("Network Error");
+    /**
+     * GPS data
+     */
+    @SuppressLint("HandlerLeak")
+    Handler receiveGpsHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == NETWORK_ERROR) {
+                tvMsg.setText(R.string.msg_network_error);
             }
-        }
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     };
 
+    private Runnable receiveGpsRunnable = () -> {
+        // TODO: 19-8-14 There're sth wrong with the code logic
+        while (true) {
+            Log.i("receiveGpsRunnable", "msg received");
+            // TODO: 19-5-16 receive GPS data
+            if (null != locationUrl) {
+                String response = JsonUtils.get(locationUrl);
+                if (!response.equals("Network Error")) {
+                    LocationDataBean bean = new Gson().fromJson(response, LocationDataBean.class);
+                    LatLng robotLocation = new LatLng(bean.getLat(), bean.getLon());
+                    // TODO: 19-5-21 redraw the location
+                } else {
+                    Message msg = receiveGpsHandler.obtainMessage();
+                    msg.what = NETWORK_ERROR;
+                    receiveGpsHandler.sendMessage(msg);
+                }
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
-
-
+//    class ReceiveGpsHandler extends Handler {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            if (msg.what == NETWORK_ERROR) {
+//                tvMsg.setText(R.string.msg_network_error);
+//            }
+//        }
+//    }
 
 
     @Override
@@ -279,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
 
         // release the video player
-        if(mVideoView != null) {
+        if (mVideoView != null) {
             mVideoView.release();
         }
         mVideoView = null;
@@ -292,9 +306,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-    /** Permissions **/
+    /**
+     * Permissions
+     **/
 
     protected void checkPermissions() {
         //6.0之后要动态获取权限，重要！！
@@ -355,12 +369,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /** Video Player **/
+    /**
+     * Video Player
+     **/
 
     private void onPrepared(IMediaPlayer mp) {
         if (mVideoView != null) {
             // 设置视频伸缩模式，此模式为裁剪模式
-            mVideoView.setVideoScalingMode(KSYMediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+            mVideoView.setVideoScalingMode(KSYMediaPlayer.VIDEO_SCALING_MODE_NOSCALE_TO_FIT);
             // 开始播放视频
             mVideoView.start();
             Log.i("lifecycle", "onPrepared");
@@ -375,12 +391,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /** Steering Engine **/
+    /**
+     * Steering Engine
+     **/
 
     private void onScrollSteeringEngine() {
-            steeringEngineValue_X = (int)(baseSteeringEngineValue_X - (currentX-baseX)/20);
-            steeringEngineValue_Y = (int)(baseSteeringEngineValue_Y - (currentY-baseY)/20);
-            Log.i("steering", "x=" + steeringEngineValue_X + " y=" + steeringEngineValue_Y);
+        steeringEngineValue_X = (int) (baseSteeringEngineValue_X - (currentX - baseX) / 20);
+        steeringEngineValue_Y = (int) (baseSteeringEngineValue_Y - (currentY - baseY) / 20);
+        Log.i("steering", "x=" + steeringEngineValue_X + " y=" + steeringEngineValue_Y);
 
         if ((steeringEngineValue_X < 10) || (steeringEngineValue_X > 170) || (steeringEngineValue_Y < 10) || (steeringEngineValue_Y > 170)) {
             if (steeringEngineValue_X < 10) {
@@ -394,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
                 steeringEngineValue_Y = 170;
             }
             mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-            long[] pattern = { 10, 200, 10, 200, 10, 200}; // {Interval time, vibration duration...}
+            long[] pattern = {10, 200, 10, 200, 10, 200}; // {Interval time, vibration duration...}
             mVibrator.vibrate(pattern, -1);
         }
 
@@ -405,13 +423,46 @@ public class MainActivity extends AppCompatActivity {
     private void sendSteeringEngineCommand() {
         SteeringEngineValueBean bean = new SteeringEngineValueBean(steeringEngineValue_X, steeringEngineValue_Y);
         String json = new Gson().toJson(bean);
-        if (null!=steeringEngineUrl) {
-            JsonUtils.postJson(json, steeringEngineUrl);
+        String response;
+        if (null != steeringEngineUrl) {
+            response = JsonUtils.postJson(json, steeringEngineUrl);
+            if (!response.equals("Network Error")) {
+                ResponseStatusBean responseBean = new Gson().fromJson(response, ResponseStatusBean.class);
+                // TODO: 19-5-25 do sth with the response status
+            } else {
+                tvMsg.setText(getString(R.string.msg_network_error));
+            }
+        }
+    }
+
+    /**
+     * Rocker View
+     **/
+
+    private void sendMoveCommand(RockerView.Direction direction) {
+        switch (direction) {
+            case DIRECTION_UP:
+                Log.i("rockerview", "++++UP++++");
+                break;
+            case DIRECTION_DOWN:
+                Log.i("rockerview", "++++DOWN++++");
+                break;
+            case DIRECTION_LEFT:
+                Log.i("rockerview", "++++LEFT++++");
+                break;
+            case DIRECTION_RIGHT:
+                Log.i("rockerview", "++++RIGHT++++");
+                break;
+            case DIRECTION_CENTER:
+                Log.i("rockerview", "++++CENTER++++");
+                break;
         }
     }
 
 
-    /** Map **/
+    /**
+     * Map
+     **/
 
     private void initMap() {
         //获取地图控件引用
@@ -470,7 +521,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /** When Buttons Are Clicked **/
+    /**
+     * When Buttons Are Clicked
+     **/
 
     private void onBtnSettingsClicked(View v) {
         Intent sendIntent = new Intent(MainActivity.this, SettingsActivity.class);
@@ -507,8 +560,8 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Save an image and return its location
      *
-     * @param bmp   The image you want to save.
-     * @return      The string of the location.
+     * @param bmp The image you want to save.
+     * @return The string of the location.
      */
     public static String saveImg(Bitmap bmp) {
         File appDir = new File(Environment.getExternalStorageDirectory(), "ScreenShot");
@@ -553,13 +606,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     public class MyLocationListener extends BDAbstractLocationListener {
         @Override
         public void onReceiveLocation(BDLocation location) {
             //mapView 销毁后不在处理新接收的位置
-            if (location == null || mMapView == null){
+            if (location == null || mMapView == null) {
                 return;
             }
 //            mLocation = new LatLng(22.960000, 113.400000);
@@ -582,7 +633,7 @@ public class MainActivity extends AppCompatActivity {
                 isFirstLoc = false;
 //                LatLng ll= new LatLng(22.960000, 113.400000);
 
-                LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
+                LatLng ll = new LatLng(location.getLatitude(), location.getLongitude());
                 MapStatus.Builder builder = new MapStatus.Builder();
                 builder.target(ll).zoom(18.0f);
                 mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));

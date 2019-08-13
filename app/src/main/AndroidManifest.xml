@@ -27,7 +27,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="n">
-        <activity android:name=".models.OfflineMapCityBean"/>
         <activity android:name=".ui.OfflineMapActivity" />
 
         <meta-data
